@@ -8,14 +8,14 @@
 //
 // Features:
 //
-//     - Per request log context
-//     - Per request and/or per message key/value fields
-//     - Log levels (Debug, Info, Warn, Error)
-//     - Color output when terminal is detected
-//     - Custom output (JSON, logfmt, …)
-//     - Automatic gathering of request context like User-Agent, IP etc.
-//     - Drops message rather than blocking execution
-//     - Easy access logging thru github.com/rs/xaccess
+//   - Per request log context
+//   - Per request and/or per message key/value fields
+//   - Log levels (Debug, Info, Warn, Error)
+//   - Color output when terminal is detected
+//   - Custom output (JSON, logfmt, …)
+//   - Automatic gathering of request context like User-Agent, IP etc.
+//   - Drops message rather than blocking execution
+//   - Easy access logging thru github.com/rs/xaccess
 //
 // It works best in combination with github.com/rs/xhandler.
 package xlog // import "github.com/Ak-Army/xlog"
@@ -104,16 +104,19 @@ type Config struct {
 	// puts a greater pressure on GC and increases the amount of memory allocated
 	// and freed. Use only if persistent loggers are a requirement.
 	DisablePooling bool
+	// DisableCallerInfo removes the caller file info from the log line
+	DisableCallerInfo bool
 }
 
 // F represents a set of log message fields
 type F map[string]interface{}
 
 type logger struct {
-	level          Level
-	output         Output
-	fields         F
-	disablePooling bool
+	level             Level
+	output            Output
+	fields            F
+	disablePooling    bool
+	disableCallerInfo bool
 }
 
 // Common field names for log messages.
@@ -156,6 +159,7 @@ func New(c Config) Logger {
 		l.SetField(k, v)
 	}
 	l.disablePooling = c.DisablePooling
+	l.disableCallerInfo = c.DisableCallerInfo
 	return l
 }
 
@@ -203,8 +207,10 @@ func (l *logger) send(level Level, calldepth int, msg string, fields map[string]
 	if err != nil {
 		data[KeyError] = err
 	}
-	if _, file, line, ok := runtime.Caller(calldepth); ok {
-		data[KeyFile] = path.Base(file) + ":" + strconv.FormatInt(int64(line), 10)
+	if !l.disableCallerInfo {
+		if _, file, line, ok := runtime.Caller(calldepth); ok {
+			data[KeyFile] = path.Base(file) + ":" + strconv.FormatInt(int64(line), 10)
+		}
 	}
 	for k, v := range fields {
 		data[k] = v
