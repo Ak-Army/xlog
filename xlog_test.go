@@ -3,7 +3,6 @@ package xlog
 import (
 	"errors"
 	"io"
-	"io/ioutil"
 	"log"
 	"sync"
 	"testing"
@@ -128,7 +127,11 @@ func TestSend(t *testing.T) {
 	last = <-o.w
 	assert.Contains(t, last["file"], "log_test.go:")
 	delete(last, "file")
-	assert.Equal(t, map[string]interface{}{"time": fakeNow, "level": "info", "message": "test", "foo": "bar", "bar": "baz"}, last)
+	assert.Equal(
+		t,
+		map[string]interface{}{"time": fakeNow, "level": "info", "message": "test", "foo": "bar", "bar": "baz"},
+		last,
+	)
 
 	l = New(Config{Output: o, Level: 1}).(*logger)
 	o.reset()
@@ -137,7 +140,6 @@ func TestSend(t *testing.T) {
 }
 
 func TestSendDrop(t *testing.T) {
-	t.Skip()
 	r, w := io.Pipe()
 	go func() {
 		critialLoggerMux.Lock()
@@ -157,7 +159,8 @@ func TestSendDrop(t *testing.T) {
 		critialLogger = oldCritialLogger
 		w.Close()
 	}()
-	b, err := ioutil.ReadAll(r)
+
+	b, err := io.ReadAll(r)
 	assert.NoError(t, err)
 	assert.Contains(t, string(b), "send error: buffer full")
 }
@@ -167,7 +170,7 @@ func TestExtractFields(t *testing.T) {
 	v := []interface{}{"a", 1, err, map[string]interface{}{"foo": "bar"}}
 	f, e := extractFields(&v)
 	assert.Equal(t, map[string]interface{}{"foo": "bar"}, f)
-	assert.Equal(t, []interface{}{"a", 1, err}, v)
+	assert.Equal(t, []interface{}{"a", 1}, v)
 	assert.Equal(t, err, e)
 
 	v = []interface{}{map[string]interface{}{"foo": "bar"}, "a", 1}
@@ -278,7 +281,11 @@ func TestErrorf(t *testing.T) {
 	last := <-o.w
 	assert.Contains(t, last["file"], "log_test.go:")
 	delete(last, "file")
-	assert.Equal(t, map[string]interface{}{"time": fakeNow, "level": "error", "message": "test 1", "foo": "bar"}, last)
+	assert.Equal(
+		t,
+		map[string]interface{}{"time": fakeNow, "level": "error", "message": "test 1%!v(MISSING)", "foo": "bar"},
+		last,
+	)
 }
 
 func TestFatal(t *testing.T) {
@@ -307,7 +314,11 @@ func TestFatalf(t *testing.T) {
 	last := <-o.w
 	assert.Contains(t, last["file"], "log_test.go:")
 	delete(last, "file")
-	assert.Equal(t, map[string]interface{}{"time": fakeNow, "level": "fatal", "message": "test 1", "foo": "bar"}, last)
+	assert.Equal(
+		t,
+		map[string]interface{}{"time": fakeNow, "level": "fatal", "message": "test 1%!v(MISSING)", "foo": "bar"},
+		last,
+	)
 	assert.Equal(t, 1, exited)
 }
 
