@@ -228,7 +228,7 @@ func NewForceConsoleOutput() Output {
 // the provided writer. If the writer is not on a terminal, the noTerm output is returned.
 func NewConsoleOutputW(w io.Writer, noTerm Output) Output {
 	if isTerminal(w) {
-		return consoleOutput{w: w}
+		return consoleOutput{w: w, isTerminal: true}
 	}
 	return noTerm
 }
