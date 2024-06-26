@@ -1,6 +1,3 @@
-:warning: **Check [zerolog](https://github.com/rs/zerolog), the successor of xlog.**
-
-
 # HTTP Handler Logger
 
 [![godoc](http://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/Ak-Army/xlog) [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://raw.githubusercontent.com/Ak-Army/xlog/master/LICENSE) [![Build Status](https://travis-ci.org/Ak-Army/xlog.svg?branch=master)](https://travis-ci.org/Ak-Army/xlog) [![Coverage](http://gocover.io/_badge/github.com/Ak-Army/xlog)](http://gocover.io/github.com/Ak-Army/xlog)
@@ -9,7 +6,6 @@
 
 Unlike most loggers, `xlog` will never block your application because one its outputs is lagging. The log commands are connected to their outputs through a buffered channel and will prefer to discard messages if the buffer get full. All message formatting, serialization and transport happen in a dedicated go routine.
 
-Read more about `xlog` on [Dailymotion engineering blog](http://engineering.dailymotion.com/our-way-to-go/).
 
 ![](screenshot.png)
 
@@ -17,14 +13,12 @@ Read more about `xlog` on [Dailymotion engineering blog](http://engineering.dail
 
 - Per request log context
 - Per request and/or per message key/value fields
-- Log levels (Debug, Info, Warn, Error)
+- Log levels (Debug, Info, Warn, Error, Fatal)
 - Color output when terminal is detected
 - Custom output (JSON, [logfmt](https://github.com/kr/logfmt), …)
 - Automatic gathering of request context like User-Agent, IP etc.
 - Drops message rather than blocking execution
 - Easy access logging thru [github.com/rs/xaccess](https://github.com/rs/xaccess)
-
-Works with both Go 1.7+ (with `net/context` support) and Go 1.6 if used with [github.com/rs/xhandler](https://github.com/rs/xhandler).
 
 ## Install
 
