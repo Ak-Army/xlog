@@ -232,6 +232,16 @@ func NewConsoleOutputW(w io.Writer, noTerm Output) Output {
 	}
 	return noTerm
 }
+
+// NewForceConsoleOutputW returns a Output printing message in a colored human readable form with
+// the provided writer. If the writer is not on a terminal, a color is returned stripped.
+func NewForceConsoleOutputW(w io.Writer) Output {
+	return consoleOutput{
+		w:          w,
+		isTerminal: isTerminal(w),
+	}
+}
+
 func (o consoleOutput) Write(fields map[string]interface{}) error {
 	if o.isTerminal {
 		return o.writeWithColor(fields)
