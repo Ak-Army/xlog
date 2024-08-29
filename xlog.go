@@ -155,9 +155,7 @@ func New(c Config) Logger {
 	if l.output == nil {
 		l.output = NewOutputChannel(NewConsoleOutput())
 	}
-	for k, v := range c.Fields {
-		l.SetField(k, v)
-	}
+	l.SetFields(c.Fields)
 	l.disablePooling = c.DisablePooling
 	l.disableCallerInfo = c.DisableCallerInfo
 	return l
@@ -259,6 +257,9 @@ func (l *logger) SetField(name string, value interface{}) {
 
 // SetFields
 func (l *logger) SetFields(fields F) {
+	if l.fields == nil {
+		l.fields = map[string]interface{}{}
+	}
 	for name, value := range fields {
 		l.fields[name] = value
 	}
