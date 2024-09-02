@@ -21,6 +21,7 @@
 package xlog // import "github.com/Ak-Army/xlog"
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -38,6 +39,9 @@ type Logger interface {
 	// Implements io.Writer so it can be set a output of log.Logger
 	io.Writer
 
+	// SetContext set the context for logging. All future messages on this logger
+	// will have this context set.
+	SetContext(ctx context.Context)
 	// SetField sets a field on the logger's context. All future messages on this logger
 	// will have this field set.
 	SetField(name string, value interface{})
@@ -115,6 +119,7 @@ type logger struct {
 	level             Level
 	output            Output
 	fields            F
+	ctx               context.Context
 	disablePooling    bool
 	disableCallerInfo bool
 }
@@ -126,6 +131,7 @@ var (
 	KeyLevel   = "level"
 	KeyFile    = "file"
 	KeyError   = "error"
+	KeyContext = "context"
 )
 
 var now = time.Now
@@ -152,6 +158,7 @@ func New(c Config) Logger {
 	}
 	l.level = c.Level
 	l.output = c.Output
+	l.ctx = context.Background()
 	if l.output == nil {
 		l.output = NewOutputChannel(NewConsoleOutput())
 	}
@@ -177,6 +184,7 @@ func (l *logger) Copy() Logger {
 		output:         l.output,
 		fields:         map[string]interface{}{},
 		disablePooling: l.disablePooling,
+		ctx:            l.ctx,
 	}
 	for k, v := range l.fields {
 		l2.fields[k] = v
@@ -202,6 +210,7 @@ func (l *logger) send(level Level, calldepth int, msg string, fields map[string]
 	data[KeyTime] = now()
 	data[KeyLevel] = level.String()
 	data[KeyMessage] = msg
+	data[KeyContext] = l.ctx
 	if err != nil {
 		data[KeyError] = err
 	}
@@ -247,6 +256,11 @@ func extractFields(v *[]interface{}) (map[string]interface{}, error) {
 	return f, e
 }
 
+// SetContext implements Logger interface
+func (l *logger) SetContext(ctx context.Context) {
+	l.ctx = ctx
+}
+
 // SetField implements Logger interface
 func (l *logger) SetField(name string, value interface{}) {
 	if l.fields == nil {
@@ -255,7 +269,7 @@ func (l *logger) SetField(name string, value interface{}) {
 	l.fields[name] = value
 }
 
-// SetFields
+// SetFields implements Logger interface
 func (l *logger) SetFields(fields F) {
 	if l.fields == nil {
 		l.fields = map[string]interface{}{}
@@ -270,7 +284,7 @@ func (l *logger) GetFields() F {
 	return l.fields
 }
 
-// Output implements Logger interface
+// OutputF implements Logger interface
 func (l *logger) OutputF(level Level, calldepth int, msg string, fields map[string]interface{}, err error) {
 	l.send(level, calldepth+1, msg, fields, err)
 }

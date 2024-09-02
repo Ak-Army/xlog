@@ -26,6 +26,7 @@ func newTestOutputErr(err error) *testOutput {
 }
 
 func (o *testOutput) Write(fields map[string]interface{}) (err error) {
+	delete(fields, KeyContext)
 	o.w <- fields
 	return o.err
 }

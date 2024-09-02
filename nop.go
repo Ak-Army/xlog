@@ -1,5 +1,7 @@
 package xlog
 
+import "context"
+
 type nop struct{}
 
 // NopLogger is an no-op implementation of xlog.Logger
@@ -43,3 +45,5 @@ func (n nop) Write(p []byte) (int, error) { return len(p), nil }
 func (n nop) Output(calldepth int, s string) error {
 	return nil
 }
+
+func (n nop) SetContext(ctx context.Context) {}

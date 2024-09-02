@@ -1,6 +1,7 @@
 package xlog
 
 import (
+	"context"
 	"errors"
 	"io"
 	"log"
@@ -341,4 +342,40 @@ func TestOutput(t *testing.T) {
 	assert.Contains(t, last["file"], "log_test.go:")
 	delete(last, "file")
 	assert.Equal(t, map[string]interface{}{"time": fakeNow, "level": "info", "message": "test"}, last)
+}
+
+func TestOutput2(t *testing.T) {
+	o := newTestOutput()
+	l := New(Config{Output: o}).(*logger)
+	done := make(chan struct{})
+	end := make(chan struct{})
+	go func() {
+		defer close(end)
+		for {
+			select {
+			case <-done:
+				return
+			default:
+				l.Output(2, "test")
+				last := <-o.w
+				assert.Contains(t, last["file"], "log_test.go:")
+				delete(last, "file")
+				assert.Equal(t, map[string]interface{}{"time": fakeNow, "level": "info", "message": "test"}, last)
+			}
+		}
+	}()
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			default:
+				ll := l.Copy()
+				ll.SetContext(context.Background())
+			}
+		}
+	}()
+	time.Sleep(time.Second)
+	close(done)
+	<-end
 }

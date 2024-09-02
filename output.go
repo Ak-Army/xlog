@@ -278,7 +278,7 @@ func (o consoleOutput) write(fields map[string]interface{}) error {
 	keys := []string{}
 	for k := range fields {
 		switch k {
-		case KeyLevel, KeyMessage, KeyTime, KeyError:
+		case KeyLevel, KeyMessage, KeyTime, KeyError, KeyContext:
 			continue
 		}
 		keys = append(keys, k)
@@ -337,7 +337,7 @@ func (o consoleOutput) writeWithColor(fields map[string]interface{}) error {
 	keys := []string{}
 	for k := range fields {
 		switch k {
-		case KeyLevel, KeyMessage, KeyTime, KeyError:
+		case KeyLevel, KeyMessage, KeyTime, KeyError, KeyContext:
 			continue
 		}
 		keys = append(keys, k)
@@ -377,7 +377,7 @@ func (o logfmtOutput) Write(fields map[string]interface{}) error {
 	keys := []string{}
 	for k := range fields {
 		switch k {
-		case KeyLevel, KeyMessage, KeyTime, KeyError:
+		case KeyLevel, KeyMessage, KeyTime, KeyError, KeyContext:
 			continue
 		}
 		keys = append(keys, k)
