@@ -3,8 +3,8 @@ module github.com/Ak-Army/xlog
 go 1.21
 
 require (
-	github.com/rs/xid v1.5.0
-	github.com/stretchr/testify v1.9.0
+	github.com/rs/xid v1.6.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (

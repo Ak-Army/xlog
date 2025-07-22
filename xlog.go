@@ -28,6 +28,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -206,6 +207,11 @@ func (l *logger) send(level Level, calldepth int, msg string, fields map[string]
 	if level < l.level || l.output == nil {
 		return
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			l.Errorf("Unable to send message, panic recovered: %s; stack: %s", r, string(debug.Stack()))
+		}
+	}()
 	data := make(map[string]interface{}, 4+len(fields)+len(l.fields))
 	data[KeyTime] = now()
 	data[KeyLevel] = level.String()
@@ -374,7 +380,7 @@ func (l *logger) Write(p []byte) (int, error) {
 }
 
 // Output implements common logger interface
-func (l *logger) Output(calldepth int, s string) error {
-	l.send(LevelInfo, 2, s, nil, nil)
+func (l *logger) Output(callDepth int, s string) error {
+	l.send(LevelInfo, callDepth, s, nil, nil)
 	return nil
 }
