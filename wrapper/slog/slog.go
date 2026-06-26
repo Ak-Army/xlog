@@ -15,6 +15,10 @@ type Wrapper struct {
 	groups []string
 }
 
+func NewSlogger(logger xlog.Logger) *slog.Logger {
+	return slog.New(&Wrapper{logger: logger})
+}
+
 func NewWrapper(logger xlog.Logger) *Wrapper {
 	return &Wrapper{logger: logger}
 }
